@@ -233,6 +233,54 @@ svg [fill="#000"],
 svg [fill="black"] {
   fill: #f8f9fb !important;
 }
+  /* ===== FORCE LIGHT MODE FIX ===== */
+
+html, body {
+    background: #ffffff !important;
+    color: #111827 !important;
+}
+
+/* 모든 텍스트 강제 */
+* {
+    color: #111827 !important;
+}
+
+/* 카드/박스 */
+div, section, article {
+    background-color: #ffffff !important;
+}
+
+/* SVG 내부 텍스트 */
+svg text,
+svg tspan {
+    fill: #111827 !important;
+    color: #111827 !important;
+}
+
+/* 검은 배경 도형 제거 */
+svg rect {
+    fill: #f3f4f6 !important;
+    stroke: #d1d5db !important;
+}
+
+/* 선 */
+svg path,
+svg line {
+    stroke: #6b7280 !important;
+}
+
+/* 혹시 mermaid 썼을 경우 */
+.mermaid {
+    background: #ffffff !important;
+}
+
+/* 다크모드 강제 차단 */
+@media (prefers-color-scheme: dark) {
+    html, body {
+        background: #ffffff !important;
+        color: #111827 !important;
+    }
+}
 </style>
 
 <div class="doc-wrap">
