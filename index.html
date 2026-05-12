@@ -281,6 +281,42 @@ svg line {
         color: #111827 !important;
     }
 }
+  /* ===== 검정 배경 강제 제거 ===== */
+
+svg {
+    background: white !important;
+}
+
+/* 노드 박스 배경 */
+svg rect,
+svg polygon,
+svg ellipse,
+svg circle {
+    fill: #ffffff !important;
+    stroke: #d1d5db !important;
+}
+
+/* 화살표/선 */
+svg path,
+svg line {
+    stroke: #6b7280 !important;
+}
+
+/* 글자 */
+svg text,
+svg tspan {
+    fill: #111827 !important;
+    font-weight: 500 !important;
+}
+
+/* Mermaid 다크 테마 박살내기 */
+[data-theme="dark"],
+.mermaid,
+.node rect,
+.cluster rect {
+    background: white !important;
+    fill: white !important;
+}
 </style>
 
 <div class="doc-wrap">
