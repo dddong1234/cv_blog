@@ -3,100 +3,6 @@
 
 <style>
 :root {
-  /* Background */
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f8f9fb;
-  --color-background-info: #e8f2ff;
-
-  /* Text */
-  --color-text-primary: #1f2937;
-  --color-text-secondary: #4b5563;
-  --color-text-tertiary: #6b7280;
-  --color-text-info: #1d4ed8;
-
-  /* Border */
-  --color-border-primary: #d1d5db;
-  --color-border-secondary: #cbd5e1;
-  --color-border-tertiary: #e5e7eb;
-  --color-border-info: #93c5fd;
-
-  /* Radius */
-  --border-radius-md: 10px;
-  --border-radius-lg: 16px;
-
-  /* Font */
-  --font-sans: -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
-  --font-mono: "JetBrains Mono",
-    "Consolas", monospace;
-
-  /* Palette */
-  --c-purple-50: #EEEDFE;
-  --c-purple-200: #AFA9EC;
-  --c-purple-600: #534AB7;
-  --c-purple-800: #3C3489;
-
-  --c-teal-50: #E1F5EE;
-  --c-teal-200: #5DCAA5;
-  --c-teal-600: #0F6E56;
-  --c-teal-800: #085041;
-
-  --c-coral-50: #FAECE7;
-  --c-coral-200: #F0997B;
-  --c-coral-600: #993C1D;
-  --c-coral-800: #712B13;
-
-  --c-amber-50: #FAEEDA;
-  --c-amber-200: #EF9F27;
-  --c-amber-600: #854F0B;
-  --c-amber-800: #633806;
-
-  --c-blue-50: #E6F1FB;
-  --c-blue-200: #85B7EB;
-  --c-blue-600: #185FA5;
-  --c-blue-800: #0C447C;
-
-  --c-red-50: #FCEBEB;
-  --c-red-200: #F09595;
-  --c-red-600: #A32D2D;
-  --c-red-800: #791F1F;
-
-  --c-green-50: #EAF3DE;
-  --c-green-200: #97C459;
-  --c-green-600: #3B6D11;
-  --c-green-800: #27500A;
-
-  --c-gray-50: #F1EFE8;
-  --c-gray-200: #B4B2A9;
-  --c-gray-600: #5F5E5A;
-  --c-gray-800: #444441;
-}
-
-/* 강제 테마 */
-html, body {
-  background: #ffffff !important;
-  color: #1f2937 !important;
-  margin: 0;
-  padding: 0;
-}
-
-/* 혹시 남아있는 dark theme 강제 제거 */
-* {
-  color: inherit;
-  box-sizing: border-box;
-}
-
-svg text,
-text {
-  fill: #1f2937 !important;
-}
-
-body {
-  font-family: var(--font-sans, sans-serif);
-}
-</style>
-<style>
-:root {
   --c-purple-50: #EEEDFE; --c-purple-200: #AFA9EC; --c-purple-600: #534AB7; --c-purple-800: #3C3489;
   --c-teal-50: #E1F5EE; --c-teal-200: #5DCAA5; --c-teal-600: #0F6E56; --c-teal-800: #085041;
   --c-coral-50: #FAECE7; --c-coral-200: #F0997B; --c-coral-600: #993C1D; --c-coral-800: #712B13;
@@ -210,112 +116,91 @@ table.metric-table tr:last-child td { border-bottom: none; }
   .confusion-grid { width: 240px; }
   .branch-container { grid-template-columns: 1fr; }
 }
-  /* ===== 강제 SVG 텍스트 복구 ===== */
+/* ===== TISTORY / GITHUB SVG FIX ===== */
+
+/* 전체 배경 */
+html, body {
+  background: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+/* SVG 기본 */
+svg {
+  background: transparent !important;
+}
+
+/* 텍스트 */
 svg text,
 svg tspan {
   fill: #1f2937 !important;
   color: #1f2937 !important;
 }
 
-/* 검은 박스 강제 밝게 */
-svg rect,
-svg path {
-  fill-opacity: 1 !important;
+/* ===== Claude group class 복구 ===== */
+
+/* gray */
+.c-gray rect,
+.c-gray circle,
+.c-gray ellipse,
+.c-gray polygon {
+  fill: #F1EFE8 !important;
+  stroke: #5F5E5A !important;
 }
 
-/* Claude artifact dark 제거 */
-svg [fill="#fff"],
-svg [fill="white"] {
-  fill: #1f2937 !important;
+/* blue */
+.c-blue rect,
+.c-blue circle,
+.c-blue ellipse,
+.c-blue polygon {
+  fill: #E6F1FB !important;
+  stroke: #185FA5 !important;
 }
 
-svg [fill="#000"],
-svg [fill="black"] {
-  fill: #f8f9fb !important;
-}
-  /* ===== FORCE LIGHT MODE FIX ===== */
-
-html, body {
-    background: #ffffff !important;
-    color: #111827 !important;
+/* teal */
+.c-teal rect,
+.c-teal circle,
+.c-teal ellipse,
+.c-teal polygon {
+  fill: #E1F5EE !important;
+  stroke: #0F6E56 !important;
 }
 
-/* 모든 텍스트 강제 */
-* {
-    color: #111827 !important;
+/* coral */
+.c-coral rect,
+.c-coral circle,
+.c-coral ellipse,
+.c-coral polygon {
+  fill: #FAECE7 !important;
+  stroke: #993C1D !important;
 }
 
-/* 카드/박스 */
-div, section, article {
-    background-color: #ffffff !important;
+/* green */
+.c-green rect,
+.c-green circle,
+.c-green ellipse,
+.c-green polygon {
+  fill: #EAF3DE !important;
+  stroke: #3B6D11 !important;
 }
 
-/* SVG 내부 텍스트 */
-svg text,
-svg tspan {
-    fill: #111827 !important;
-    color: #111827 !important;
-}
-
-/* 검은 배경 도형 제거 */
-svg rect {
-    fill: #f3f4f6 !important;
-    stroke: #d1d5db !important;
+/* purple */
+.c-purple rect,
+.c-purple circle,
+.c-purple ellipse,
+.c-purple polygon {
+  fill: #EEEDFE !important;
+  stroke: #534AB7 !important;
 }
 
 /* 선 */
-svg path,
-svg line {
-    stroke: #6b7280 !important;
+svg line,
+svg path {
+  stroke-width: 1.5;
 }
 
-/* 혹시 mermaid 썼을 경우 */
-.mermaid {
-    background: #ffffff !important;
-}
-
-/* 다크모드 강제 차단 */
-@media (prefers-color-scheme: dark) {
-    html, body {
-        background: #ffffff !important;
-        color: #111827 !important;
-    }
-}
-  /* ===== 검정 배경 강제 제거 ===== */
-
-svg {
-    background: white !important;
-}
-
-/* 노드 박스 배경 */
-svg rect,
-svg polygon,
-svg ellipse,
-svg circle {
-    fill: #ffffff !important;
-    stroke: #d1d5db !important;
-}
-
-/* 화살표/선 */
-svg path,
-svg line {
-    stroke: #6b7280 !important;
-}
-
-/* 글자 */
-svg text,
-svg tspan {
-    fill: #111827 !important;
-    font-weight: 500 !important;
-}
-
-/* Mermaid 다크 테마 박살내기 */
-[data-theme="dark"],
-.mermaid,
-.node rect,
-.cluster rect {
-    background: white !important;
-    fill: white !important;
+/* fill none은 유지 */
+path[fill="none"] {
+  fill: none !important;
 }
 </style>
 
