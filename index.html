@@ -1,0 +1,1082 @@
+
+<h2 class="sr-only">머신러닝 성능 지표 진단 및 의사결정 가이드 - 회귀와 분류 평가지표, Trade-off, 최종 플로우차트를 포함한 인터랙티브 학습 문서</h2>
+
+<style>
+:root {
+  --c-purple-50: #EEEDFE; --c-purple-200: #AFA9EC; --c-purple-600: #534AB7; --c-purple-800: #3C3489;
+  --c-teal-50: #E1F5EE; --c-teal-200: #5DCAA5; --c-teal-600: #0F6E56; --c-teal-800: #085041;
+  --c-coral-50: #FAECE7; --c-coral-200: #F0997B; --c-coral-600: #993C1D; --c-coral-800: #712B13;
+  --c-amber-50: #FAEEDA; --c-amber-200: #EF9F27; --c-amber-600: #854F0B; --c-amber-800: #633806;
+  --c-blue-50: #E6F1FB; --c-blue-200: #85B7EB; --c-blue-600: #185FA5; --c-blue-800: #0C447C;
+  --c-red-50: #FCEBEB; --c-red-200: #F09595; --c-red-600: #A32D2D; --c-red-800: #791F1F;
+  --c-green-50: #EAF3DE; --c-green-200: #97C459; --c-green-600: #3B6D11; --c-green-800: #27500A;
+  --c-gray-50: #F1EFE8; --c-gray-200: #B4B2A9; --c-gray-600: #5F5E5A; --c-gray-800: #444441;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans, sans-serif); }
+
+.doc-wrap { padding: 0 0 2rem; }
+
+.nav-tabs { display: flex; gap: 4px; flex-wrap: wrap; padding: 0 0 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 1.5rem; }
+.nav-tab { padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); font-size: 13px; cursor: pointer; background: var(--color-background-secondary); color: var(--color-text-secondary); transition: all .15s; }
+.nav-tab.active { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); font-weight: 500; }
+.nav-tab:hover:not(.active) { background: var(--color-background-secondary); color: var(--color-text-primary); }
+
+.section { display: none; }
+.section.active { display: block; }
+
+.sec-title { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.sec-sub { font-size: 14px; color: var(--color-text-secondary); margin-bottom: 1.5rem; line-height: 1.6; }
+
+.takeaway { background: var(--c-purple-50); border-left: 3px solid var(--c-purple-600); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 12px 16px; margin: 1.5rem 0; }
+.takeaway .tk-label { font-size: 11px; font-weight: 500; color: var(--c-purple-600); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+.takeaway p { font-size: 13px; color: var(--c-purple-800); line-height: 1.6; }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1rem 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 1rem 0; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 1rem 0; }
+
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem; }
+.card-title { font-size: 14px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.card-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+
+.metric-pill { display: inline-block; font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; margin: 2px; }
+.pill-blue { background: var(--c-blue-50); color: var(--c-blue-800); }
+.pill-coral { background: var(--c-coral-50); color: var(--c-coral-800); }
+.pill-teal { background: var(--c-teal-50); color: var(--c-teal-800); }
+.pill-amber { background: var(--c-amber-50); color: var(--c-amber-800); }
+.pill-purple { background: var(--c-purple-50); color: var(--c-purple-800); }
+.pill-red { background: var(--c-red-50); color: var(--c-red-800); }
+.pill-green { background: var(--c-green-50); color: var(--c-green-800); }
+
+.formula-box { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 8px 14px; font-family: var(--font-mono, monospace); font-size: 13px; color: var(--color-text-primary); margin: 8px 0; text-align: center; }
+
+.diag-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin: 1rem 0; }
+.diag-header { background: var(--color-background-secondary); padding: 8px 16px; font-size: 12px; font-weight: 500; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+.diag-body { padding: 1rem; }
+
+.symptom-row { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 0; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; margin: 8px 0; }
+.symptom-col { padding: 10px 14px; }
+.symptom-col:not(:last-child) { border-right: 0.5px solid var(--color-border-tertiary); }
+.symptom-label { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+.symptom-val { font-size: 13px; font-weight: 500; line-height: 1.4; }
+
+.flow-step { display: flex; align-items: flex-start; gap: 12px; margin: 6px 0; }
+.flow-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; margin-top: 1px; }
+.flow-arrow { text-align: center; color: var(--color-text-tertiary); font-size: 18px; line-height: 1; padding: 2px 0 2px 14px; }
+
+.confusion-grid { display: grid; grid-template-columns: 28px 1fr 1fr; grid-template-rows: 28px 1fr 1fr; gap: 3px; width: 280px; margin: 0 auto; }
+.cm-label { display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; color: var(--color-text-secondary); }
+.cm-cell { border-radius: var(--border-radius-md); padding: 12px 8px; text-align: center; }
+.cm-tp { background: var(--c-teal-50); }
+.cm-tn { background: var(--c-teal-50); }
+.cm-fp { background: var(--c-coral-50); }
+.cm-fn { background: var(--c-red-50); }
+.cm-cell .cm-main { font-size: 15px; font-weight: 500; }
+.cm-cell .cm-sub { font-size: 10px; color: var(--color-text-secondary); margin-top: 2px; }
+
+.tradeoff-bar { height: 20px; border-radius: 10px; overflow: hidden; display: flex; margin: 6px 0; }
+.bar-seg { display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; transition: all .3s; }
+
+.cheat-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.cheat-cond { font-family: var(--font-mono, monospace); font-size: 13px; font-weight: 500; color: var(--color-text-primary); min-width: 200px; }
+.cheat-arrow { color: var(--color-text-tertiary); font-size: 14px; }
+.cheat-meaning { font-size: 13px; color: var(--color-text-secondary); }
+.cheat-pill { display: inline-block; font-size: 11px; font-weight: 500; padding: 2px 8px; border-radius: 20px; margin-right: 6px; }
+
+table.metric-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 1rem 0; }
+table.metric-table th { background: var(--color-background-secondary); padding: 8px 12px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .4px; color: var(--color-text-secondary); text-align: left; border-bottom: 0.5px solid var(--color-border-tertiary); }
+table.metric-table td { padding: 9px 12px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); vertical-align: top; }
+table.metric-table tr:last-child td { border-bottom: none; }
+
+.residual-card { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.residual-header { padding: 8px 14px; font-size: 12px; font-weight: 500; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.residual-body { padding: 12px 14px; display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: start; }
+
+.cv-block { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px; font-size: 12px; text-align: center; color: var(--color-text-secondary); }
+.cv-block.train { opacity: .5; }
+.cv-block.test { opacity: 1; }
+
+.btn-sendprompt { display: inline-flex; align-items: center; gap: 6px; background: transparent; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 6px 12px; font-size: 13px; cursor: pointer; color: var(--color-text-secondary); transition: all .15s; margin-top: 8px; }
+.btn-sendprompt:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
+
+.flow-box { border-radius: var(--border-radius-md); padding: 8px 14px; font-size: 13px; font-weight: 500; text-align: center; }
+.flow-connector { text-align: center; color: var(--color-text-tertiary); font-size: 20px; line-height: 1.2; }
+.branch-container { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.branch-box { border-radius: var(--border-radius-md); border: 0.5px solid; padding: 10px 12px; font-size: 12px; }
+.branch-title { font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+.action-list { list-style: none; padding: 0; }
+.action-list li { padding: 2px 0; font-size: 12px; color: var(--color-text-secondary); }
+.action-list li::before { content: "→ "; color: var(--color-text-tertiary); }
+
+@media (max-width: 500px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .symptom-row { grid-template-columns: 1fr; }
+  .symptom-col:not(:last-child) { border-right: none; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .confusion-grid { width: 240px; }
+  .branch-container { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="doc-wrap">
+
+<div style="padding: 1rem 0 1.5rem;">
+  <div style="font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px;">머신러닝 실전 가이드</div>
+  <div style="font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px;">성능 지표로 모델을 진단하고 개선하기</div>
+  <div style="font-size: 14px; color: var(--color-text-secondary);">지표를 보고 → 상태를 추론하고 → 다음 액션을 결정하는 능력을 기른다</div>
+</div>
+
+<div class="nav-tabs" id="navTabs">
+  <button class="nav-tab active" onclick="showSection('s1')">1. 큰 그림</button>
+  <button class="nav-tab" onclick="showSection('s2')">2. 회귀 지표</button>
+  <button class="nav-tab" onclick="showSection('s3')">3. 분류 지표</button>
+  <button class="nav-tab" onclick="showSection('s4')">4. Trade-off</button>
+  <button class="nav-tab" onclick="showSection('s5')">5. Residual</button>
+  <button class="nav-tab" onclick="showSection('s6')">6. Cross-Val</button>
+  <button class="nav-tab" onclick="showSection('s7')">7. 의사결정 플로우</button>
+  <button class="nav-tab" onclick="showSection('s8')">8. 치트시트</button>
+</div>
+
+<!-- SECTION 1 -->
+<div id="s1" class="section active">
+  <div class="sec-title">머신러닝 모델 평가 프레임워크</div>
+  <div class="sec-sub">회귀와 분류를 하나의 큰 구조 안에서 이해한다. 지표 측정 → 진단 → 전략 선택의 흐름이 핵심이다.</div>
+
+  <svg width="100%" viewBox="0 0 680 520" role="img"><title>ML 모델 평가 전체 프레임워크 플로우차트</title><desc>데이터부터 모델 학습, 성능 측정, 진단, 개선 전략까지 전체 흐름 도식</desc>
+    <defs><marker id="arr1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+    <!-- Data box -->
+    <g class="c-gray"><rect x="260" y="20" width="160" height="44" rx="8" stroke-width="0.5"/><text class="th" x="340" y="42" text-anchor="middle" dominant-baseline="central">데이터</text></g>
+    <line x1="340" y1="64" x2="340" y2="90" class="arr" stroke="var(--c-gray-600)" marker-end="url(#arr1)"/>
+
+    <!-- Train box -->
+    <g class="c-blue"><rect x="240" y="90" width="200" height="44" rx="8" stroke-width="0.5"/><text class="th" x="340" y="112" text-anchor="middle" dominant-baseline="central">모델 학습</text></g>
+    <line x1="340" y1="134" x2="340" y2="160" stroke="var(--c-blue-600)" marker-end="url(#arr1)" stroke-width="1.5" fill="none"/>
+
+    <!-- Metric box -->
+    <g class="c-purple"><rect x="220" y="160" width="240" height="56" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="180" text-anchor="middle" dominant-baseline="central">성능 측정 (Metric)</text>
+      <text class="ts" x="340" y="200" text-anchor="middle" dominant-baseline="central">Train / Test 비교</text>
+    </g>
+    <line x1="340" y1="216" x2="340" y2="242" stroke="var(--c-purple-600)" marker-end="url(#arr1)" stroke-width="1.5" fill="none"/>
+
+    <!-- Diagnose box -->
+    <g class="c-amber"><rect x="220" y="242" width="240" height="56" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="262" text-anchor="middle" dominant-baseline="central">모델 상태 진단</text>
+      <text class="ts" x="340" y="282" text-anchor="middle" dominant-baseline="central">Underfit / Good / Overfit</text>
+    </g>
+
+    <!-- Branch lines -->
+    <line x1="220" y1="270" x2="130" y2="270" stroke="var(--c-coral-600)" stroke-width="1" fill="none" marker-end="url(#arr1)"/>
+    <line x1="460" y1="270" x2="550" y2="270" stroke="var(--c-teal-600)" stroke-width="1" fill="none" marker-end="url(#arr1)"/>
+    <line x1="340" y1="298" x2="340" y2="330" stroke="var(--c-amber-600)" stroke-width="1.5" fill="none" marker-end="url(#arr1)"/>
+
+    <!-- Left: Regression -->
+    <g class="c-coral"><rect x="30" y="242" width="100" height="56" rx="8" stroke-width="0.5"/>
+      <text class="th" x="80" y="262" text-anchor="middle" dominant-baseline="central">회귀</text>
+      <text class="ts" x="80" y="282" text-anchor="middle" dominant-baseline="central">연속값 예측</text>
+    </g>
+
+    <!-- Right: Classification -->
+    <g class="c-teal"><rect x="550" y="242" width="100" height="56" rx="8" stroke-width="0.5"/>
+      <text class="th" x="600" y="262" text-anchor="middle" dominant-baseline="central">분류</text>
+      <text class="ts" x="600" y="282" text-anchor="middle" dominant-baseline="central">클래스 예측</text>
+    </g>
+
+    <!-- Regression metrics -->
+    <text class="ts" x="80" y="320" text-anchor="middle">RSS, MSE, RMSE</text>
+    <text class="ts" x="80" y="336" text-anchor="middle">MAE, MAPE, R²</text>
+
+    <!-- Classification metrics -->
+    <text class="ts" x="600" y="320" text-anchor="middle">Accuracy, Precision</text>
+    <text class="ts" x="600" y="336" text-anchor="middle">Recall, F1, AUC</text>
+
+    <!-- Strategy box -->
+    <g class="c-teal"><rect x="220" y="330" width="240" height="56" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="350" text-anchor="middle" dominant-baseline="central">개선 전략 선택</text>
+      <text class="ts" x="340" y="370" text-anchor="middle" dominant-baseline="central">Regularization / Feature Eng.</text>
+    </g>
+    <line x1="340" y1="386" x2="340" y2="412" stroke="var(--c-teal-600)" stroke-width="1.5" fill="none" marker-end="url(#arr1)"/>
+
+    <!-- Loop back -->
+    <g class="c-green"><rect x="220" y="412" width="240" height="44" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="434" text-anchor="middle" dominant-baseline="central">모델 재학습 / 배포</text>
+    </g>
+    <!-- Loop arrow -->
+    <path d="M220 434L160 434L160 112L240 112" fill="none" stroke="var(--c-green-600)" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#arr1)"/>
+    <text class="ts" x="150" y="280" text-anchor="middle">반복</text>
+  </svg>
+
+  <div class="takeaway"><div class="tk-label">핵심 Takeaway</div><p>지표는 단순히 "좋다/나쁘다"를 알려주는 게 아니다. <strong>Train과 Test를 비교</strong>해야 모델 상태를 진단할 수 있고, 상태에 맞는 전략을 고를 수 있다.</p></div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">회귀 (Regression)</div>
+      <div class="card-body">숫자를 예측. 집값, 주가, 온도 등 연속적인 값을 출력한다.</div>
+      <div style="margin-top: 8px;"><span class="metric-pill pill-blue">MSE</span><span class="metric-pill pill-blue">RMSE</span><span class="metric-pill pill-blue">MAE</span><span class="metric-pill pill-blue">R²</span></div>
+    </div>
+    <div class="card">
+      <div class="card-title">분류 (Classification)</div>
+      <div class="card-body">클래스를 예측. 스팸/정상, 암/정상, 고객 이탈 여부 등 이산적 레이블을 출력한다.</div>
+      <div style="margin-top: 8px;"><span class="metric-pill pill-teal">Precision</span><span class="metric-pill pill-teal">Recall</span><span class="metric-pill pill-teal">F1</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2 -->
+<div id="s2" class="section">
+  <div class="sec-title">회귀 평가지표 완전 정리</div>
+  <div class="sec-sub">각 지표가 무엇에 민감한지를 이해하면, 지표 조합으로 모델 문제를 진단할 수 있다.</div>
+
+  <table class="metric-table">
+    <thead><tr><th>지표</th><th>공식</th><th>민감한 것</th><th>언제 사용</th><th>단점</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="metric-pill pill-blue">RSS</span></td>
+        <td><span style="font-family:monospace;font-size:12px;">Σ(yᵢ - ŷᵢ)²</span></td>
+        <td>이상치, 데이터 수</td>
+        <td>내부 최적화 기준</td>
+        <td>데이터 수에 비례 → 비교 불가</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-blue">MSE</span></td>
+        <td><span style="font-family:monospace;font-size:12px;">RSS / n</span></td>
+        <td>큰 오류 (제곱)</td>
+        <td>이상치가 치명적일 때</td>
+        <td>단위² → 해석 어려움</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-purple">RMSE</span></td>
+        <td><span style="font-family:monospace;font-size:12px;">√MSE</span></td>
+        <td>큰 오류 (가장 강함)</td>
+        <td>이상치 존재 파악</td>
+        <td>이상치에 과민 반응</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-teal">MAE</span></td>
+        <td><span style="font-family:monospace;font-size:12px;">Σ|yᵢ - ŷᵢ| / n</span></td>
+        <td>균등한 오류</td>
+        <td>이상치 영향 줄일 때</td>
+        <td>미분 불연속 (0에서)</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-amber">MAPE</span></td>
+        <td><span style="font-family:monospace;font-size:12px;">Σ|e/y| / n × 100%</span></td>
+        <td>상대적 오류</td>
+        <td>스케일 다른 비교</td>
+        <td>y≈0이면 폭발, 비대칭</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-coral">RMSLE</span></td>
+        <td><span style="font-family:monospace;font-size:12px;">√Σ(log(ŷ+1)-log(y+1))²/n</span></td>
+        <td>비율 오류 (로그)</td>
+        <td>가격/주가 등 지수 분포</td>
+        <td>과소예측을 더 엄하게 처벌</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-green">R²</span></td>
+        <td><span style="font-family:monospace;font-size:12px;">1 - RSS/TSS</span></td>
+        <td>전체 분산 설명력</td>
+        <td>모델의 설명력 요약</td>
+        <td>변수 추가 시 자동 증가</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div style="margin: 1.5rem 0 0.5rem; font-size: 15px; font-weight: 500; color: var(--color-text-primary);">지표 비교로 원인 진단하기</div>
+
+  <div style="margin: 1rem 0;">
+    <div class="symptom-row">
+      <div class="symptom-col" style="background: var(--c-coral-50);">
+        <div class="symptom-label" style="color: var(--c-coral-600);">증상</div>
+        <div class="symptom-val" style="color: var(--c-coral-800);">RMSE ≫ MAE</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-amber-50);">
+        <div class="symptom-label" style="color: var(--c-amber-600);">추론</div>
+        <div class="symptom-val" style="color: var(--c-amber-800);">이상치(Outlier) 존재</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-teal-50);">
+        <div class="symptom-label" style="color: var(--c-teal-600);">액션</div>
+        <div class="symptom-val" style="color: var(--c-teal-800);">이상치 제거 / Robust 모델 / MAE 기반 손실함수</div>
+      </div>
+    </div>
+
+    <div class="symptom-row">
+      <div class="symptom-col" style="background: var(--c-coral-50);">
+        <div class="symptom-label" style="color: var(--c-coral-600);">증상</div>
+        <div class="symptom-val" style="color: var(--c-coral-800);">RMSLE 양호, RMSE 나쁨</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-amber-50);">
+        <div class="symptom-label" style="color: var(--c-amber-600);">추론</div>
+        <div class="symptom-val" style="color: var(--c-amber-800);">큰 절댓값에서 실패, 비율은 맞음</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-teal-50);">
+        <div class="symptom-label" style="color: var(--c-teal-600);">액션</div>
+        <div class="symptom-val" style="color: var(--c-teal-800);">타겟 로그 변환 후 학습 → 역변환</div>
+      </div>
+    </div>
+
+    <div class="symptom-row">
+      <div class="symptom-col" style="background: var(--c-coral-50);">
+        <div class="symptom-label" style="color: var(--c-coral-600);">증상</div>
+        <div class="symptom-val" style="color: var(--c-coral-800);">Train RMSE 낮음<br/>Test RMSE 높음</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-amber-50);">
+        <div class="symptom-label" style="color: var(--c-amber-600);">추론</div>
+        <div class="symptom-val" style="color: var(--c-amber-800);">Overfitting</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-teal-50);">
+        <div class="symptom-label" style="color: var(--c-teal-600);">액션</div>
+        <div class="symptom-val" style="color: var(--c-teal-800);">Ridge/Lasso · 모델 단순화 · 피처 제거 · 데이터 증가</div>
+      </div>
+    </div>
+
+    <div class="symptom-row">
+      <div class="symptom-col" style="background: var(--c-coral-50);">
+        <div class="symptom-label" style="color: var(--c-coral-600);">증상</div>
+        <div class="symptom-val" style="color: var(--c-coral-800);">Train RMSE 높음<br/>Test RMSE 높음</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-amber-50);">
+        <div class="symptom-label" style="color: var(--c-amber-600);">추론</div>
+        <div class="symptom-val" style="color: var(--c-amber-800);">Underfitting</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-teal-50);">
+        <div class="symptom-label" style="color: var(--c-teal-600);">액션</div>
+        <div class="symptom-val" style="color: var(--c-teal-800);">Feature 추가 · 복잡한 모델 · 다항식 항 추가</div>
+      </div>
+    </div>
+
+    <div class="symptom-row">
+      <div class="symptom-col" style="background: var(--c-coral-50);">
+        <div class="symptom-label" style="color: var(--c-coral-600);">증상</div>
+        <div class="symptom-val" style="color: var(--c-coral-800);">R² ≈ 0.3<br/>RMSE 낮음</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-amber-50);">
+        <div class="symptom-label" style="color: var(--c-amber-600);">추론</div>
+        <div class="symptom-val" style="color: var(--c-amber-800);">데이터 분산이 작거나<br/>모델이 단순</div>
+      </div>
+      <div class="symptom-col" style="background: var(--c-teal-50);">
+        <div class="symptom-label" style="color: var(--c-teal-600);">액션</div>
+        <div class="symptom-val" style="color: var(--c-teal-800);">도메인 지식으로 유용한 피처 추가 검토</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RMSE vs MAE visual -->
+  <div class="diag-card">
+    <div class="diag-header">RMSE vs MAE — 이상치 민감도 비교</div>
+    <div class="diag-body">
+      <svg width="100%" viewBox="0 0 640 180" role="img"><title>RMSE vs MAE 이상치 민감도 비교</title><desc>예측 오류 크기에 따라 RMSE와 MAE의 패널티가 어떻게 다른지 보여주는 그래프</desc>
+        <defs><marker id="ax1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+        <!-- Axes -->
+        <line x1="50" y1="150" x2="600" y2="150" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#ax1)" fill="none"/>
+        <line x1="50" y1="20" x2="50" y2="155" stroke="var(--color-border-secondary)" stroke-width="1" fill="none"/>
+        <text class="ts" x="610" y="154">오류 e</text>
+        <text class="ts" x="40" y="16" text-anchor="end">패널티</text>
+        <!-- MAE line (linear) -->
+        <path d="M50 150 L320 22" fill="none" stroke="var(--c-teal-600)" stroke-width="2"/>
+        <path d="M320 22 L590 150" fill="none" stroke="var(--c-teal-600)" stroke-width="2"/>
+        <!-- RMSE curve (parabola approximation) -->
+        <path d="M50 150 Q320 -20 590 150" fill="none" stroke="var(--c-coral-600)" stroke-width="2.5"/>
+        <!-- Labels -->
+        <text class="ts" x="160" y="68" fill="var(--c-teal-800)">MAE (선형)</text>
+        <text class="ts" x="400" y="50" fill="var(--c-coral-800)">RMSE (제곱)</text>
+        <!-- Outlier marker -->
+        <line x1="520" y1="20" x2="520" y2="148" stroke="var(--c-amber-600)" stroke-width="1" stroke-dasharray="3 2"/>
+        <text class="ts" x="522" y="14" fill="var(--c-amber-800)">이상치 구간</text>
+        <text class="ts" x="522" y="30" fill="var(--c-amber-600)">RMSE가 훨씬 큼</text>
+        <!-- X label -->
+        <text class="ts" x="320" y="168" text-anchor="middle">e = 0</text>
+      </svg>
+      <div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">이상치가 있을 때 RMSE는 오류를 제곱하여 크게 반응, MAE는 선형적으로 반응. RMSE≫MAE면 이상치 존재 신호.</div>
+    </div>
+  </div>
+
+  <div class="takeaway"><div class="tk-label">핵심 Takeaway</div><p>RMSE와 MAE를 함께 보자. 두 값의 차이 자체가 이상치 여부를 알려주는 신호다. R²는 절대적 오류 크기를 말하지 않으니 RMSE와 함께 해석해야 한다.</p></div>
+</div>
+
+<!-- SECTION 3 -->
+<div id="s3" class="section">
+  <div class="sec-title">분류 평가지표 완전 정리</div>
+  <div class="sec-sub">혼동 행렬(Confusion Matrix)에서 모든 분류 지표가 파생된다. 먼저 행렬을 이해하면 나머지는 자연스럽게 따라온다.</div>
+
+  <!-- Confusion Matrix -->
+  <div style="text-align:center; margin: 1rem 0 1.5rem;">
+    <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);margin-bottom:6px;">실제 클래스 →</div>
+    <div style="display:flex;align-items:center;gap:8px;justify-content:center;">
+      <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);margin-right:4px;">예측 클래스 ↑</div>
+      <div>
+        <div style="display:grid;grid-template-columns:90px 130px 130px;gap:3px;">
+          <div></div>
+          <div style="text-align:center;font-size:12px;font-weight:500;color:var(--color-text-secondary);padding:4px;">실제 양성(+)</div>
+          <div style="text-align:center;font-size:12px;font-weight:500;color:var(--color-text-secondary);padding:4px;">실제 음성(-)</div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);padding:4px 0;text-align:right;">예측 양성(+)</div>
+          <div class="cm-cell cm-tp" style="padding:14px 8px;text-align:center;border-radius:var(--border-radius-md);">
+            <div class="cm-main" style="color:var(--c-teal-800);font-size:16px;font-weight:500;">TP</div>
+            <div class="cm-sub">True Positive<br/>맞게 양성 예측</div>
+          </div>
+          <div class="cm-cell cm-fp" style="padding:14px 8px;text-align:center;border-radius:var(--border-radius-md);">
+            <div class="cm-main" style="color:var(--c-coral-800);font-size:16px;font-weight:500;">FP</div>
+            <div class="cm-sub">False Positive<br/>틀리게 양성 예측</div>
+          </div>
+          <div style="font-size:12px;font-weight:500;color:var(--color-text-secondary);padding:4px 0;text-align:right;">예측 음성(-)</div>
+          <div class="cm-cell cm-fn" style="padding:14px 8px;text-align:center;border-radius:var(--border-radius-md);">
+            <div class="cm-main" style="color:var(--c-red-800);font-size:16px;font-weight:500;">FN</div>
+            <div class="cm-sub">False Negative<br/>놓친 양성</div>
+          </div>
+          <div class="cm-cell cm-tn" style="padding:14px 8px;text-align:center;border-radius:var(--border-radius-md);">
+            <div class="cm-main" style="color:var(--c-teal-800);font-size:16px;font-weight:500;">TN</div>
+            <div class="cm-sub">True Negative<br/>맞게 음성 예측</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metric formulas -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Accuracy <span class="metric-pill pill-gray" style="background:var(--c-gray-50);color:var(--c-gray-800);">전체 정확도</span></div>
+      <div class="formula-box">(TP + TN) / (TP + FP + FN + TN)</div>
+      <div class="card-body">전체 예측 중 맞은 비율. 클래스 불균형 시 <strong style="color:var(--c-coral-800);">위험</strong>. 암 진단에서 99% 음성이면 항상 음성이라 해도 99% 정확도.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Precision <span class="metric-pill pill-blue">정밀도</span></div>
+      <div class="formula-box">TP / (TP + FP)</div>
+      <div class="card-body">양성이라 예측한 것 중 진짜 양성 비율. <strong>FP를 줄이는 것</strong>이 목표일 때 중요. (스팸 필터, 법정 증거)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Recall (Sensitivity) <span class="metric-pill pill-coral">재현율</span></div>
+      <div class="formula-box">TP / (TP + FN)</div>
+      <div class="card-body">실제 양성 중 잡아낸 비율. <strong>FN을 줄이는 것</strong>이 목표일 때 중요. (암 진단, 사기 탐지)</div>
+    </div>
+    <div class="card">
+      <div class="card-title">F1-Score <span class="metric-pill pill-purple">조화평균</span></div>
+      <div class="formula-box">2 × (Precision × Recall) / (Precision + Recall)</div>
+      <div class="card-body">Precision과 Recall의 균형. 둘 다 중요할 때 사용. 하나가 0이면 F1도 0이 된다.</div>
+    </div>
+  </div>
+
+  <!-- Use case table -->
+  <div style="margin: 1.5rem 0 0.5rem; font-size: 15px; font-weight: 500; color: var(--color-text-primary);">실제 사례별 중요 지표</div>
+  <table class="metric-table">
+    <thead><tr><th>사례</th><th>더 중요한 지표</th><th>이유</th><th>FP vs FN 비용</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>🏥 암 진단</td>
+        <td><span class="metric-pill pill-coral">Recall ↑</span></td>
+        <td>암을 놓치면(FN) 치명적</td>
+        <td>FN 비용 &gt;&gt; FP 비용</td>
+      </tr>
+      <tr>
+        <td>📧 스팸 필터</td>
+        <td><span class="metric-pill pill-blue">Precision ↑</span></td>
+        <td>정상 메일을 스팸으로 분류(FP)가 더 나쁨</td>
+        <td>FP 비용 &gt; FN 비용</td>
+      </tr>
+      <tr>
+        <td>💳 사기 탐지</td>
+        <td><span class="metric-pill pill-coral">Recall ↑</span></td>
+        <td>사기를 놓치면(FN) 금전적 피해</td>
+        <td>FN 비용 &gt;&gt; FP 비용</td>
+      </tr>
+      <tr>
+        <td>🎯 추천 시스템</td>
+        <td><span class="metric-pill pill-purple">F1 균형</span></td>
+        <td>관련 없는 추천(FP)과 놓친 추천(FN) 모두 중요</td>
+        <td>비슷한 비용</td>
+      </tr>
+      <tr>
+        <td>🔍 콘텐츠 검색</td>
+        <td><span class="metric-pill pill-blue">Precision ↑</span></td>
+        <td>관련 없는 결과가 많으면(FP) 사용자 이탈</td>
+        <td>FP 비용 &gt; FN 비용</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="takeaway"><div class="tk-label">핵심 Takeaway</div><p>Accuracy만 보지 마라. FP와 FN 중 어느 실수가 더 치명적인지를 먼저 결정하고, 그에 맞는 지표를 선택한다. 암 진단이라면 Recall이 낮은 모델은 아무리 Accuracy가 높아도 위험하다.</p></div>
+</div>
+
+<!-- SECTION 4 -->
+<div id="s4" class="section">
+  <div class="sec-title">Trade-off를 그림으로 이해하기</div>
+  <div class="sec-sub">머신러닝에는 피할 수 없는 균형이 존재한다. 한쪽을 올리면 다른 쪽이 내려간다. 이 균형점을 찾는 것이 모델 튜닝의 핵심이다.</div>
+
+  <!-- Bias-Variance -->
+  <div style="font-size:15px;font-weight:500;margin:1rem 0 0.5rem;">1. Bias-Variance Trade-off</div>
+
+  <svg width="100%" viewBox="0 0 680 240" role="img"><title>Bias-Variance Trade-off 곡선</title><desc>모델 복잡도가 증가할수록 Bias는 감소하고 Variance는 증가하며, 전체 오류의 최솟값(Sweet Spot)이 존재함을 보여주는 그래프</desc>
+    <defs><marker id="ax2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+    <!-- Axes -->
+    <line x1="60" y1="200" x2="620" y2="200" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#ax2)" fill="none"/>
+    <line x1="60" y1="20" x2="60" y2="205" stroke="var(--color-border-secondary)" stroke-width="1" fill="none"/>
+    <text class="ts" x="630" y="204">모델 복잡도</text>
+    <text class="ts" x="50" y="16" text-anchor="end">오류</text>
+
+    <!-- Bias curve (decreasing) -->
+    <path d="M80 40 Q200 60 400 140 Q500 170 600 185" fill="none" stroke="var(--c-coral-600)" stroke-width="2.5"/>
+    <!-- Variance curve (increasing) -->
+    <path d="M80 185 Q250 165 400 120 Q500 80 600 40" fill="none" stroke="var(--c-blue-600)" stroke-width="2.5"/>
+    <!-- Total error curve -->
+    <path d="M80 120 Q240 100 370 90 Q430 92 500 110 Q560 135 600 165" fill="none" stroke="var(--c-purple-600)" stroke-width="2" stroke-dasharray="5 3"/>
+
+    <!-- Sweet spot -->
+    <line x1="370" y1="20" x2="370" y2="200" stroke="var(--c-green-600)" stroke-width="1" stroke-dasharray="3 2"/>
+    <circle cx="370" cy="90" r="5" fill="var(--c-green-600)"/>
+    <text class="ts" x="372" y="84" fill="var(--c-green-800)" font-weight="500">Sweet Spot</text>
+
+    <!-- Labels -->
+    <text class="ts" x="120" y="55" fill="var(--c-coral-800)">High Bias</text>
+    <text class="ts" x="120" y="70" fill="var(--c-coral-600)">(Underfitting)</text>
+    <text class="ts" x="500" y="55" fill="var(--c-blue-800)">High Variance</text>
+    <text class="ts" x="500" y="70" fill="var(--c-blue-600)">(Overfitting)</text>
+
+    <!-- Legend -->
+    <line x1="62" y1="220" x2="90" y2="220" stroke="var(--c-coral-600)" stroke-width="2"/>
+    <text class="ts" x="94" y="224">Bias</text>
+    <line x1="150" y1="220" x2="178" y2="220" stroke="var(--c-blue-600)" stroke-width="2"/>
+    <text class="ts" x="182" y="224">Variance</text>
+    <line x1="246" y1="220" x2="274" y2="220" stroke="var(--c-purple-600)" stroke-width="1.5" stroke-dasharray="4 2"/>
+    <text class="ts" x="278" y="224">Total Error</text>
+  </svg>
+
+  <div class="grid-3" style="margin:1rem 0;">
+    <div class="card" style="border-top: 2px solid var(--c-coral-600);">
+      <div class="card-title" style="color:var(--c-coral-800);">Underfitting (High Bias)</div>
+      <div class="card-body">모델이 너무 단순. 데이터를 충분히 학습 못 함. Train/Test 둘 다 나쁨.</div>
+      <div style="margin-top:8px;font-size:12px;font-weight:500;color:var(--c-teal-800);">→ 모델 복잡화, 피처 추가</div>
+    </div>
+    <div class="card" style="border-top: 2px solid var(--c-green-600);">
+      <div class="card-title" style="color:var(--c-green-800);">Good Fit</div>
+      <div class="card-body">Train ≈ Test 성능. 새 데이터에도 잘 작동. 목표 상태.</div>
+      <div style="margin-top:8px;font-size:12px;font-weight:500;color:var(--c-teal-800);">→ 유지 또는 미세 조정</div>
+    </div>
+    <div class="card" style="border-top: 2px solid var(--c-blue-600);">
+      <div class="card-title" style="color:var(--c-blue-800);">Overfitting (High Variance)</div>
+      <div class="card-body">훈련 데이터를 외워버림. Train 좋음, Test 나쁨.</div>
+      <div style="margin-top:8px;font-size:12px;font-weight:500;color:var(--c-teal-800);">→ 정규화, 데이터 증가</div>
+    </div>
+  </div>
+
+  <!-- Precision-Recall Tradeoff -->
+  <div style="font-size:15px;font-weight:500;margin:1.5rem 0 0.5rem;">2. Precision-Recall Trade-off (threshold 조절)</div>
+
+  <svg width="100%" viewBox="0 0 680 200" role="img"><title>Precision-Recall Trade-off 그래프 with threshold</title><desc>임계값(threshold)을 낮출수록 Recall이 증가하고 Precision이 감소하는 관계를 보여주는 그래프</desc>
+    <defs><marker id="ax3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+    <line x1="60" y1="170" x2="550" y2="170" stroke="var(--color-border-secondary)" stroke-width="1" marker-end="url(#ax3)" fill="none"/>
+    <line x1="60" y1="20" x2="60" y2="175" stroke="var(--color-border-secondary)" stroke-width="1" fill="none"/>
+    <text class="ts" x="558" y="174">Threshold →</text>
+    <text class="ts" x="50" y="16" text-anchor="end">값</text>
+    <text class="ts" x="56" y="174" text-anchor="end">낮음</text>
+    <text class="ts" x="546" y="174" text-anchor="end">높음</text>
+    <text class="ts" x="56" y="30">1.0</text>
+    <text class="ts" x="56" y="172">0</text>
+
+    <!-- Precision (increasing) -->
+    <path d="M80 155 Q250 140 400 100 Q480 70 530 35" fill="none" stroke="var(--c-blue-600)" stroke-width="2.5"/>
+    <!-- Recall (decreasing) -->
+    <path d="M80 35 Q250 60 400 110 Q480 140 530 160" fill="none" stroke="var(--c-coral-600)" stroke-width="2.5"/>
+    <!-- F1 curve (arch) -->
+    <path d="M80 120 Q280 75 310 72 Q360 75 530 140" fill="none" stroke="var(--c-purple-600)" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+    <!-- Optimal point -->
+    <circle cx="310" cy="72" r="5" fill="var(--c-purple-600)"/>
+    <line x1="310" y1="20" x2="310" y2="168" stroke="var(--c-purple-600)" stroke-width="1" stroke-dasharray="3 2"/>
+    <text class="ts" x="312" y="30" fill="var(--c-purple-800)">F1 최대</text>
+
+    <!-- Legend -->
+    <line x1="62" y1="188" x2="86" y2="188" stroke="var(--c-blue-600)" stroke-width="2"/>
+    <text class="ts" x="90" y="192">Precision</text>
+    <line x1="162" y1="188" x2="186" y2="188" stroke="var(--c-coral-600)" stroke-width="2"/>
+    <text class="ts" x="190" y="192">Recall</text>
+    <line x1="244" y1="188" x2="268" y2="188" stroke="var(--c-purple-600)" stroke-width="1.5" stroke-dasharray="4 2"/>
+    <text class="ts" x="272" y="192">F1</text>
+
+    <!-- Annotations -->
+    <text class="ts" x="120" y="120" fill="var(--c-coral-800)">많이 잡음(FP↑)</text>
+    <text class="ts" x="420" y="80" fill="var(--c-blue-800)">확실한 것만(FN↑)</text>
+  </svg>
+
+  <!-- Regularization -->
+  <div style="font-size:15px;font-weight:500;margin:1.5rem 0 0.5rem;">3. Regularization Trade-off (Ridge / Lasso)</div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">정규화 없음 → Overfitting 위험</div>
+      <svg width="100%" viewBox="0 0 300 130" role="img" aria-label="정규화 없을 때 과적합된 복잡한 곡선 예시">
+        <path d="M20 90 Q50 20 80 80 Q110 140 140 40 Q170 -20 200 70 Q230 130 260 50 Q280 20 290 60" fill="none" stroke="var(--c-coral-600)" stroke-width="2"/>
+        <path d="M20 90 Q100 70 200 80 Q250 85 290 75" fill="none" stroke="var(--c-gray-600)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text class="ts" x="150" y="120" text-anchor="middle" fill="var(--c-coral-800)">복잡한 곡선 (훈련 데이터 암기)</text>
+      </svg>
+    </div>
+    <div class="card">
+      <div class="card-title">Ridge/Lasso → 일반화 향상</div>
+      <svg width="100%" viewBox="0 0 300 130" role="img" aria-label="정규화 적용 후 부드러운 일반화된 곡선 예시">
+        <path d="M20 90 Q100 50 180 70 Q240 82 290 60" fill="none" stroke="var(--c-teal-600)" stroke-width="2.5"/>
+        <path d="M20 90 Q100 70 200 80 Q250 85 290 75" fill="none" stroke="var(--c-gray-600)" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <text class="ts" x="150" y="120" text-anchor="middle" fill="var(--c-teal-800)">부드러운 곡선 (계수에 패널티)</text>
+      </svg>
+    </div>
+  </div>
+
+  <table class="metric-table" style="margin-top:1rem;">
+    <thead><tr><th>방법</th><th>패널티</th><th>효과</th><th>언제</th></tr></thead>
+    <tbody>
+      <tr><td><span class="metric-pill pill-blue">Ridge (L2)</span></td><td>Σβ²</td><td>계수를 0 근처로 축소 (제거는 안 함)</td><td>모든 피처가 의미 있을 때</td></tr>
+      <tr><td><span class="metric-pill pill-purple">Lasso (L1)</span></td><td>Σ|β|</td><td>계수를 정확히 0으로 (피처 선택)</td><td>불필요한 피처 제거 원할 때</td></tr>
+    </tbody>
+  </table>
+
+  <div class="takeaway"><div class="tk-label">핵심 Takeaway</div><p>Trade-off는 피할 수 없다. Precision을 올리면 Recall이 내려간다. 정규화를 강하게 하면 Bias가 올라간다. 도메인에서 어떤 실수가 더 비싼지를 먼저 결정하고, 그 방향으로 threshold를 조절한다.</p></div>
+</div>
+
+<!-- SECTION 5 -->
+<div id="s5" class="section">
+  <div class="sec-title">Residual Plot 해석 가이드</div>
+  <div class="sec-sub">잔차(Residual = 실제값 - 예측값)를 시각화하면 모델이 어디서, 어떻게 실패하는지 알 수 있다.</div>
+
+  <svg width="100%" viewBox="0 0 680 320" role="img"><title>4가지 Residual Plot 패턴 비교</title><desc>좋은 잔차(랜덤), 곡선 패턴, 팬 모양, 편향된 잔차 패턴을 각각 도식화</desc>
+    <defs><marker id="ax4" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+
+    <!-- Plot 1: Good residual -->
+    <text class="th" x="85" y="25" text-anchor="middle" fill="var(--c-green-800)">✓ 좋은 잔차</text>
+    <line x1="20" y1="75" x2="155" y2="75" stroke="var(--color-border-secondary)" stroke-width="0.8" stroke-dasharray="3 2"/>
+    <line x1="20" y1="45" x2="20" y2="115" stroke="var(--color-border-tertiary)" stroke-width="0.8" fill="none"/>
+    <line x1="20" y1="115" x2="155" y2="115" stroke="var(--color-border-tertiary)" stroke-width="0.8" fill="none"/>
+    <circle cx="35" cy="62" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <circle cx="55" cy="80" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <circle cx="70" cy="68" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <circle cx="88" cy="82" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <circle cx="100" cy="70" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <circle cx="118" cy="78" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <circle cx="140" cy="65" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <circle cx="45" cy="85" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <circle cx="128" cy="73" r="3" fill="var(--c-teal-600)" opacity=".7"/>
+    <text class="ts" x="85" y="130" text-anchor="middle" fill="var(--c-teal-800)">랜덤 분포</text>
+
+    <!-- Plot 2: Curve pattern -->
+    <text class="th" x="255" y="25" text-anchor="middle" fill="var(--c-coral-800)">✗ 곡선 패턴</text>
+    <line x1="190" y1="75" x2="325" y2="75" stroke="var(--color-border-secondary)" stroke-width="0.8" stroke-dasharray="3 2"/>
+    <line x1="190" y1="45" x2="190" y2="115" stroke="var(--color-border-tertiary)" stroke-width="0.8" fill="none"/>
+    <line x1="190" y1="115" x2="325" y2="115" stroke="var(--color-border-tertiary)" stroke-width="0.8" fill="none"/>
+    <path d="M200 95 Q240 55 258 75 Q280 95 315 65" fill="none" stroke="var(--c-coral-600)" stroke-width="1.5" opacity=".6"/>
+    <circle cx="200" cy="95" r="3" fill="var(--c-coral-600)" opacity=".7"/>
+    <circle cx="220" cy="72" r="3" fill="var(--c-coral-600)" opacity=".7"/>
+    <circle cx="240" cy="57" r="3" fill="var(--c-coral-600)" opacity=".7"/>
+    <circle cx="258" cy="75" r="3" fill="var(--c-coral-600)" opacity=".7"/>
+    <circle cx="278" cy="90" r="3" fill="var(--c-coral-600)" opacity=".7"/>
+    <circle cx="300" cy="72" r="3" fill="var(--c-coral-600)" opacity=".7"/>
+    <circle cx="315" cy="60" r="3" fill="var(--c-coral-600)" opacity=".7"/>
+    <text class="ts" x="255" y="130" text-anchor="middle" fill="var(--c-coral-800)">비선형 구조 존재</text>
+
+    <!-- Plot 3: Fan shape -->
+    <text class="th" x="425" y="25" text-anchor="middle" fill="var(--c-amber-800)">✗ 팬 모양</text>
+    <line x1="360" y1="75" x2="495" y2="75" stroke="var(--color-border-secondary)" stroke-width="0.8" stroke-dasharray="3 2"/>
+    <line x1="360" y1="45" x2="360" y2="115" stroke="var(--color-border-tertiary)" stroke-width="0.8" fill="none"/>
+    <line x1="360" y1="115" x2="495" y2="115" stroke="var(--color-border-tertiary)" stroke-width="0.8" fill="none"/>
+    <circle cx="375" cy="73" r="2.5" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="385" cy="77" r="2.5" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="395" cy="71" r="2.5" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="415" cy="65" r="3" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="415" cy="85" r="3" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="435" cy="58" r="3.5" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="435" cy="92" r="3.5" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="460" cy="50" r="4" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="460" cy="100" r="4" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="480" cy="42" r="4.5" fill="var(--c-amber-600)" opacity=".8"/>
+    <circle cx="480" cy="108" r="4.5" fill="var(--c-amber-600)" opacity=".8"/>
+    <text class="ts" x="425" y="130" text-anchor="middle" fill="var(--c-amber-800)">이분산성 (Heteroscedasticity)</text>
+
+    <!-- Plot 4: Biased -->
+    <text class="th" x="600" y="25" text-anchor="middle" fill="var(--c-purple-800)">✗ 편향</text>
+    <line x1="535" y1="75" x2="665" y2="75" stroke="var(--color-border-secondary)" stroke-width="0.8" stroke-dasharray="3 2"/>
+    <line x1="535" y1="45" x2="535" y2="115" stroke="var(--color-border-tertiary)" stroke-width="0.8" fill="none"/>
+    <line x1="535" y1="115" x2="665" y2="115" stroke="var(--color-border-tertiary)" stroke-width="0.8" fill="none"/>
+    <circle cx="550" cy="58" r="3" fill="var(--c-purple-600)" opacity=".8"/>
+    <circle cx="565" cy="62" r="3" fill="var(--c-purple-600)" opacity=".8"/>
+    <circle cx="580" cy="55" r="3" fill="var(--c-purple-600)" opacity=".8"/>
+    <circle cx="595" cy="60" r="3" fill="var(--c-purple-600)" opacity=".8"/>
+    <circle cx="615" cy="57" r="3" fill="var(--c-purple-600)" opacity=".8"/>
+    <circle cx="635" cy="63" r="3" fill="var(--c-purple-600)" opacity=".8"/>
+    <circle cx="650" cy="55" r="3" fill="var(--c-purple-600)" opacity=".8"/>
+    <text class="ts" x="600" y="130" text-anchor="middle" fill="var(--c-purple-800)">계통적 오류</text>
+
+    <!-- Row 2: Pattern analysis -->
+    <text class="ts" x="85" y="175" text-anchor="middle">의미: 모델 정상</text>
+    <text class="ts" x="85" y="192" text-anchor="middle" fill="var(--c-teal-800)">→ 유지</text>
+
+    <text class="ts" x="255" y="175" text-anchor="middle">의미: 선형 모델 한계</text>
+    <text class="ts" x="255" y="192" text-anchor="middle" fill="var(--c-coral-800)">→ Polynomial / Tree</text>
+
+    <text class="ts" x="425" y="175" text-anchor="middle">의미: 분산이 불균일</text>
+    <text class="ts" x="425" y="192" text-anchor="middle" fill="var(--c-amber-800)">→ 로그 변환</text>
+
+    <text class="ts" x="600" y="175" text-anchor="middle">의미: 누락된 피처</text>
+    <text class="ts" x="600" y="192" text-anchor="middle" fill="var(--c-purple-800)">→ Feature Engineering</text>
+  </svg>
+
+  <!-- Residual action table -->
+  <table class="metric-table" style="margin-top:1rem;">
+    <thead><tr><th>잔차 패턴</th><th>의미</th><th>원인</th><th>권장 액션</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="metric-pill pill-teal">랜덤 분포</span></td>
+        <td>모델이 잘 학습됨</td>
+        <td>-</td>
+        <td>유지 또는 하이퍼파라미터 미세조정</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-coral">곡선 패턴</span></td>
+        <td>비선형 관계 포착 못 함</td>
+        <td>선형 모델의 한계</td>
+        <td>다항식 항 추가 / Tree 기반 모델로 교체</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-amber">팬(깔때기) 모양</span></td>
+        <td>이분산성 (큰 값일수록 오류 큼)</td>
+        <td>분산이 균일하지 않음</td>
+        <td>타겟 로그 변환, WLS(가중 최소제곱)</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-purple">계통적 편향</span></td>
+        <td>특정 방향 오류 지속</td>
+        <td>중요 피처 누락</td>
+        <td>도메인 지식으로 피처 추가</td>
+      </tr>
+      <tr>
+        <td><span class="metric-pill pill-red">이상점 클러스터</span></td>
+        <td>특정 구간에서 실패</td>
+        <td>서브그룹 존재</td>
+        <td>구간별 모델 분리, 클러스터링 추가</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="takeaway"><div class="tk-label">핵심 Takeaway</div><p>숫자 지표만 보지 말고 Residual Plot을 반드시 그려라. RMSE가 좋아도 잔차에 패턴이 있으면 모델은 아직 개선 여지가 있다. 패턴 → 원인 → 액션 순서로 생각하면 된다.</p></div>
+</div>
+
+<!-- SECTION 6 -->
+<div id="s6" class="section">
+  <div class="sec-title">Cross Validation (CV) 해석</div>
+  <div class="sec-sub">단 한 번의 Train/Test 분할은 운에 달려 있다. K-Fold CV는 여러 번 평가해서 신뢰할 수 있는 성능 추정치를 제공한다.</div>
+
+  <!-- K-Fold visualization -->
+  <div style="margin: 1rem 0 1.5rem;">
+    <div style="font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;">K=5 Fold 구조</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div style="display:flex;gap:3px;align-items:center;">
+        <div style="font-size:11px;color:var(--color-text-tertiary);min-width:42px;">Fold 1</div>
+        <div style="flex:1;height:22px;border-radius:4px;background:var(--c-teal-200);opacity:.9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--c-teal-800);">Test</div>
+        <div style="flex:4;height:22px;border-radius:4px;background:var(--c-gray-50);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);">Train (4 folds)</div>
+      </div>
+      <div style="display:flex;gap:3px;align-items:center;">
+        <div style="font-size:11px;color:var(--color-text-tertiary);min-width:42px;">Fold 2</div>
+        <div style="flex:1;height:22px;border-radius:4px;background:var(--c-gray-50);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);">Train</div>
+        <div style="flex:1;height:22px;border-radius:4px;background:var(--c-teal-200);opacity:.9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--c-teal-800);">Test</div>
+        <div style="flex:3;height:22px;border-radius:4px;background:var(--c-gray-50);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);">Train</div>
+      </div>
+      <div style="display:flex;gap:3px;align-items:center;">
+        <div style="font-size:11px;color:var(--color-text-tertiary);min-width:42px;">Fold 3</div>
+        <div style="flex:2;height:22px;border-radius:4px;background:var(--c-gray-50);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);">Train</div>
+        <div style="flex:1;height:22px;border-radius:4px;background:var(--c-teal-200);opacity:.9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--c-teal-800);">Test</div>
+        <div style="flex:2;height:22px;border-radius:4px;background:var(--c-gray-50);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);">Train</div>
+      </div>
+      <div style="display:flex;gap:3px;align-items:center;">
+        <div style="font-size:11px;color:var(--color-text-tertiary);min-width:42px;">Fold 4</div>
+        <div style="flex:3;height:22px;border-radius:4px;background:var(--c-gray-50);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);">Train</div>
+        <div style="flex:1;height:22px;border-radius:4px;background:var(--c-teal-200);opacity:.9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--c-teal-800);">Test</div>
+        <div style="flex:1;height:22px;border-radius:4px;background:var(--c-gray-50);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);">Train</div>
+      </div>
+      <div style="display:flex;gap:3px;align-items:center;">
+        <div style="font-size:11px;color:var(--color-text-tertiary);min-width:42px;">Fold 5</div>
+        <div style="flex:4;height:22px;border-radius:4px;background:var(--c-gray-50);border:0.5px solid var(--color-border-tertiary);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--color-text-secondary);">Train (4 folds)</div>
+        <div style="flex:1;height:22px;border-radius:4px;background:var(--c-teal-200);opacity:.9;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--c-teal-800);">Test</div>
+      </div>
+    </div>
+    <div style="margin-top:8px;font-size:12px;color:var(--color-text-tertiary);">→ CV Score = 5개 Test 점수의 평균 ± 표준편차</div>
+  </div>
+
+  <!-- CV interpretation -->
+  <div style="font-size:14px;font-weight:500;margin:1rem 0 0.5rem;">CV 결과 해석 → 의사결정</div>
+  <div class="grid-2">
+    <div class="card" style="border-left: 3px solid var(--c-teal-600);">
+      <div class="card-title" style="color:var(--c-teal-800);">CV Mean 좋음 + Std 낮음</div>
+      <div class="formula-box" style="font-size:12px;">예: RMSE = 0.85 ± 0.03</div>
+      <div class="card-body">안정적인 모델. 어떤 데이터를 줘도 일관된 성능. 배포 준비 완료.</div>
+      <div style="margin-top:8px;font-size:12px;font-weight:500;color:var(--c-teal-800);">→ 하이퍼파라미터 최종 조정 후 배포</div>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--c-amber-600);">
+      <div class="card-title" style="color:var(--c-amber-800);">CV Mean 좋음 + Std 큼</div>
+      <div class="formula-box" style="font-size:12px;">예: RMSE = 0.85 ± 0.25</div>
+      <div class="card-body">평균은 좋지만 불안정. 특정 데이터 분할에 의존적. 실서비스 위험.</div>
+      <div style="margin-top:8px;font-size:12px;font-weight:500;color:var(--c-amber-800);">→ 더 많은 데이터 / Stratified Fold / Ensemble</div>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--c-coral-600);">
+      <div class="card-title" style="color:var(--c-coral-800);">CV Mean 나쁨 + Std 낮음</div>
+      <div class="formula-box" style="font-size:12px;">예: RMSE = 3.20 ± 0.04</div>
+      <div class="card-body">안정적으로 나쁨. 일관된 Underfitting 신호.</div>
+      <div style="margin-top:8px;font-size:12px;font-weight:500;color:var(--c-coral-800);">→ 모델 복잡화 / Feature Engineering</div>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--c-red-600);">
+      <div class="card-title" style="color:var(--c-red-800);">CV Mean 나쁨 + Std 큼</div>
+      <div class="formula-box" style="font-size:12px;">예: RMSE = 3.20 ± 1.50</div>
+      <div class="card-body">최악. 모델도 나쁘고 불안정. 데이터나 파이프라인 문제일 수도.</div>
+      <div style="margin-top:8px;font-size:12px;font-weight:500;color:var(--c-red-800);">→ 데이터 품질 확인부터 시작</div>
+    </div>
+  </div>
+
+  <div class="takeaway"><div class="tk-label">핵심 Takeaway</div><p>CV Mean은 모델의 평균 실력, CV Std는 안정성이다. 둘 다 봐야 한다. Std가 크면 Mean이 아무리 좋아도 실서비스에서 갑자기 무너질 수 있다. 보통 Std ≤ 0.1 × Mean이면 안정적이라 판단한다.</p></div>
+</div>
+
+<!-- SECTION 7 -->
+<div id="s7" class="section">
+  <div class="sec-title">최종 의사결정 플로우차트</div>
+  <div class="sec-sub">지표를 봤다면, 이 흐름을 따라가면 된다. 각 단계마다 판단 기준과 액션이 연결되어 있다.</div>
+
+  <svg width="100%" viewBox="0 0 680 720" role="img"><title>ML 모델 개선 의사결정 플로우차트</title><desc>성능 확인부터 Train/Test 비교, Underfitting/Overfitting 판단, 잔차 확인, CV 안정성 확인까지 전체 의사결정 흐름</desc>
+    <defs><marker id="fl" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+
+    <!-- START -->
+    <g class="c-gray"><rect x="240" y="20" width="200" height="40" rx="20" stroke-width="0.5"/>
+      <text class="th" x="340" y="40" text-anchor="middle" dominant-baseline="central">모델 학습 완료</text></g>
+    <line x1="340" y1="60" x2="340" y2="86" stroke="var(--c-gray-600)" marker-end="url(#fl)" stroke-width="1.5" fill="none"/>
+
+    <!-- Step 1: Check both metrics -->
+    <g class="c-blue"><rect x="200" y="86" width="280" height="52" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="105" text-anchor="middle" dominant-baseline="central">Train Metric / Test Metric 비교</text>
+      <text class="ts" x="340" y="125" text-anchor="middle" dominant-baseline="central">RMSE, R², Accuracy 등</text></g>
+    <line x1="340" y1="138" x2="340" y2="164" stroke="var(--c-blue-600)" marker-end="url(#fl)" stroke-width="1.5" fill="none"/>
+
+    <!-- Decision diamond -->
+    <g class="c-amber"><rect x="200" y="164" width="280" height="52" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="183" text-anchor="middle" dominant-baseline="central">🔍 어느 상황인가?</text>
+      <text class="ts" x="340" y="203" text-anchor="middle" dominant-baseline="central">Train vs Test 비교</text></g>
+
+    <!-- Branch left: Underfit -->
+    <path d="M200 190 L100 190 L100 280" fill="none" stroke="var(--c-coral-600)" stroke-width="1.5" marker-end="url(#fl)"/>
+    <text class="ts" x="148" y="184" text-anchor="middle" fill="var(--c-coral-800)">둘 다 낮음</text>
+
+    <!-- Branch right: Overfit -->
+    <path d="M480 190 L580 190 L580 280" fill="none" stroke="var(--c-blue-600)" stroke-width="1.5" marker-end="url(#fl)"/>
+    <text class="ts" x="534" y="184" text-anchor="middle" fill="var(--c-blue-800)">Train↑ Test↓</text>
+
+    <!-- Center: Good -->
+    <line x1="340" y1="216" x2="340" y2="286" stroke="var(--c-teal-600)" stroke-width="1.5" marker-end="url(#fl)" fill="none"/>
+    <text class="ts" x="342" y="254" fill="var(--c-teal-800)">둘 다 양호</text>
+
+    <!-- UNDERFIT BOX -->
+    <g class="c-coral"><rect x="30" y="280" width="140" height="44" rx="8" stroke-width="0.5"/>
+      <text class="th" x="100" y="295" text-anchor="middle" dominant-baseline="central">🔴 Underfitting</text>
+      <text class="ts" x="100" y="314" text-anchor="middle" dominant-baseline="central">High Bias</text></g>
+    <!-- Underfit actions -->
+    <line x1="100" y1="324" x2="100" y2="360" stroke="var(--c-coral-600)" marker-end="url(#fl)" stroke-width="1" fill="none"/>
+    <g class="c-coral"><rect x="24" y="360" width="152" height="112" rx="8" stroke-width="0.5" opacity=".7"/>
+      <text class="ts" x="100" y="380" text-anchor="middle">→ 더 복잡한 모델</text>
+      <text class="ts" x="100" y="398" text-anchor="middle">→ Feature 추가</text>
+      <text class="ts" x="100" y="416" text-anchor="middle">→ Interaction 항 추가</text>
+      <text class="ts" x="100" y="434" text-anchor="middle">→ Regularization 완화</text>
+      <text class="ts" x="100" y="452" text-anchor="middle">→ Polynomial Features</text></g>
+
+    <!-- OVERFIT BOX -->
+    <g class="c-blue"><rect x="510" y="280" width="140" height="44" rx="8" stroke-width="0.5"/>
+      <text class="th" x="580" y="295" text-anchor="middle" dominant-baseline="central">🔵 Overfitting</text>
+      <text class="ts" x="580" y="314" text-anchor="middle" dominant-baseline="central">High Variance</text></g>
+    <!-- Overfit actions -->
+    <line x1="580" y1="324" x2="580" y2="360" stroke="var(--c-blue-600)" marker-end="url(#fl)" stroke-width="1" fill="none"/>
+    <g class="c-blue"><rect x="504" y="360" width="152" height="112" rx="8" stroke-width="0.5" opacity=".7"/>
+      <text class="ts" x="580" y="380" text-anchor="middle">→ Ridge / Lasso</text>
+      <text class="ts" x="580" y="398" text-anchor="middle">→ Feature 제거</text>
+      <text class="ts" x="580" y="416" text-anchor="middle">→ 더 단순한 모델</text>
+      <text class="ts" x="580" y="434" text-anchor="middle">→ 데이터 증가</text>
+      <text class="ts" x="580" y="452" text-anchor="middle">→ Dropout / Early Stop</text></g>
+
+    <!-- GOOD FIT: Residual check -->
+    <g class="c-teal"><rect x="210" y="286" width="260" height="52" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="305" text-anchor="middle" dominant-baseline="central">✅ 양호 → 추가 진단</text>
+      <text class="ts" x="340" y="325" text-anchor="middle" dominant-baseline="central">Residual + CV 확인</text></g>
+    <line x1="340" y1="338" x2="340" y2="380" stroke="var(--c-teal-600)" marker-end="url(#fl)" stroke-width="1.5" fill="none"/>
+
+    <!-- Residual check -->
+    <g class="c-purple"><rect x="200" y="380" width="280" height="52" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="399" text-anchor="middle" dominant-baseline="central">Residual 패턴 확인</text>
+      <text class="ts" x="340" y="419" text-anchor="middle" dominant-baseline="central">랜덤? 곡선? 팬 형태?</text></g>
+    <line x1="340" y1="432" x2="340" y2="472" stroke="var(--c-purple-600)" marker-end="url(#fl)" stroke-width="1.5" fill="none"/>
+
+    <!-- CV check -->
+    <g class="c-purple"><rect x="200" y="472" width="280" height="52" rx="8" stroke-width="0.5" opacity=".8"/>
+      <text class="th" x="340" y="491" text-anchor="middle" dominant-baseline="central">CV Mean / Std 확인</text>
+      <text class="ts" x="340" y="511" text-anchor="middle" dominant-baseline="central">안정적? 불안정?</text></g>
+    <line x1="340" y1="524" x2="340" y2="560" stroke="var(--c-purple-600)" marker-end="url(#fl)" stroke-width="1.5" fill="none"/>
+
+    <!-- Final decision -->
+    <g class="c-green"><rect x="195" y="560" width="290" height="52" rx="8" stroke-width="0.5"/>
+      <text class="th" x="340" y="579" text-anchor="middle" dominant-baseline="central">🎯 최종 판단</text>
+      <text class="ts" x="340" y="599" text-anchor="middle" dominant-baseline="central">유지 / 미세조정 / 재개선</text></g>
+    <line x1="340" y1="612" x2="340" y2="648" stroke="var(--c-green-600)" marker-end="url(#fl)" stroke-width="1.5" fill="none"/>
+    <g class="c-gray"><rect x="240" y="648" width="200" height="40" rx="20" stroke-width="0.5"/>
+      <text class="th" x="340" y="668" text-anchor="middle" dominant-baseline="central">배포 또는 반복</text></g>
+
+    <!-- Residual feedback arrow (non-random → fix) -->
+    <path d="M200 406 L148 406 L148 520" fill="none" stroke="var(--c-amber-600)" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#fl)"/>
+    <text class="ts" x="116" y="468" text-anchor="middle" fill="var(--c-amber-800)">패턴 있음</text>
+    <text class="ts" x="116" y="484" text-anchor="middle" fill="var(--c-amber-800)">→ 변환/</text>
+    <text class="ts" x="116" y="500" text-anchor="middle" fill="var(--c-amber-800)">피처 추가</text>
+
+    <!-- CV high std feedback -->
+    <path d="M480 498 L560 498" fill="none" stroke="var(--c-amber-600)" stroke-width="1" stroke-dasharray="3 2"/>
+    <text class="ts" x="562" y="494" fill="var(--c-amber-800)">Std 큼</text>
+    <text class="ts" x="562" y="510" fill="var(--c-amber-800)">→ 데이터 증가</text>
+  </svg>
+
+  <div class="takeaway"><div class="tk-label">핵심 Takeaway</div><p>의사결정은 항상 이 순서다: Train/Test 비교 → Residual 패턴 → CV 안정성. 각 단계에서 문제가 발견되면 해당 전략을 적용하고 다시 처음으로 돌아간다. 이 루프가 실전 ML 엔지니어링의 핵심이다.</p></div>
+</div>
+
+<!-- SECTION 8 -->
+<div id="s8" class="section">
+  <div class="sec-title">실전 치트시트</div>
+  <div class="sec-sub">이 한 페이지로 지표 → 진단 → 액션을 즉시 결정할 수 있다.</div>
+
+  <!-- Regression cheat sheet -->
+  <div style="font-size:14px;font-weight:500;margin:0 0 0.75rem;">회귀 (Regression) 진단 치트시트</div>
+  <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1.5rem;">
+    <div style="background:var(--c-blue-50);padding:6px 14px;font-size:11px;font-weight:500;color:var(--c-blue-800);text-transform:uppercase;letter-spacing:.4px;">증상 → 진단 → 액션</div>
+    <div style="padding:4px 0;">
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">RMSE ≫ MAE</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-coral-50);color:var(--c-coral-800);">이상치 존재</span> 이상치 제거 또는 MAE 기반 손실함수 사용</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">Train RMSE 낮음<br/>Test RMSE 높음</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-blue-50);color:var(--c-blue-800);">Overfitting</span> Ridge/Lasso · 모델 단순화 · 데이터 증가</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">Train RMSE 높음<br/>Test RMSE 높음</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-coral-50);color:var(--c-coral-800);">Underfitting</span> 피처 추가 · 복잡한 모델 · 다항식 항</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">RMSLE 양호<br/>RMSE 나쁨</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-amber-50);color:var(--c-amber-800);">스케일 문제</span> 타겟 로그 변환 후 학습</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">R² 낮음<br/>RMSE 낮음</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-purple-50);color:var(--c-purple-800);">분산 작음</span> 도메인 지식 기반 피처 검토</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px; border-bottom: none;">
+        <div class="cheat-cond">Residual 곡선 패턴</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-coral-50);color:var(--c-coral-800);">비선형 구조</span> 다항식 / Tree 기반 모델</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Classification cheat sheet -->
+  <div style="font-size:14px;font-weight:500;margin:0 0 0.75rem;">분류 (Classification) 진단 치트시트</div>
+  <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1.5rem;">
+    <div style="background:var(--c-teal-50);padding:6px 14px;font-size:11px;font-weight:500;color:var(--c-teal-800);text-transform:uppercase;letter-spacing:.4px;">증상 → 진단 → 액션</div>
+    <div style="padding:4px 0;">
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">Recall 중요</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-coral-50);color:var(--c-coral-800);">FN 치명적</span> threshold 낮추기 / 암 진단 · 사기 탐지</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">Precision 중요</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-blue-50);color:var(--c-blue-800);">FP 치명적</span> threshold 높이기 / 스팸 필터 · 법정 증거</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">Accuracy 높음<br/>Recall 낮음</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-amber-50);color:var(--c-amber-800);">클래스 불균형</span> Oversampling(SMOTE) / Class Weight 조정</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px; border-bottom: none;">
+        <div class="cheat-cond">F1 낮음</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-purple-50);color:var(--c-purple-800);">Precision/Recall 모두 문제</span> 모델 재검토 + 피처 엔지니어링</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CV and Residual cheat sheet -->
+  <div style="font-size:14px;font-weight:500;margin:0 0 0.75rem;">CV & Residual 치트시트</div>
+  <div style="border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:1.5rem;">
+    <div style="background:var(--c-purple-50);padding:6px 14px;font-size:11px;font-weight:500;color:var(--c-purple-800);text-transform:uppercase;letter-spacing:.4px;">증상 → 진단 → 액션</div>
+    <div style="padding:4px 0;">
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">CV Std 큼</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-amber-50);color:var(--c-amber-800);">불안정 모델</span> 데이터 증가 · Ensemble · Stratified K-Fold</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px;">
+        <div class="cheat-cond">Residual 팬 모양</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-amber-50);color:var(--c-amber-800);">이분산성</span> 타겟 로그 변환 / WLS</div>
+      </div>
+      <div class="cheat-row" style="padding:8px 14px; border-bottom: none;">
+        <div class="cheat-cond">Residual 편향</div>
+        <div class="cheat-arrow">→</div>
+        <div class="cheat-meaning"><span class="cheat-pill" style="background:var(--c-purple-50);color:var(--c-purple-800);">누락 피처</span> 도메인 기반 피처 추가</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick reference grid -->
+  <div style="font-size:14px;font-weight:500;margin:0 0 0.75rem;">핵심 공식 빠른 참조</div>
+  <div class="grid-4">
+    <div style="background:var(--c-blue-50);border-radius:var(--border-radius-md);padding:10px;text-align:center;">
+      <div style="font-size:11px;font-weight:500;color:var(--c-blue-800);margin-bottom:4px;">RMSE</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--c-blue-600);">√(Σe²/n)</div>
+    </div>
+    <div style="background:var(--c-teal-50);border-radius:var(--border-radius-md);padding:10px;text-align:center;">
+      <div style="font-size:11px;font-weight:500;color:var(--c-teal-800);margin-bottom:4px;">MAE</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--c-teal-600);">Σ|e|/n</div>
+    </div>
+    <div style="background:var(--c-purple-50);border-radius:var(--border-radius-md);padding:10px;text-align:center;">
+      <div style="font-size:11px;font-weight:500;color:var(--c-purple-800);margin-bottom:4px;">R²</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--c-purple-600);">1 - RSS/TSS</div>
+    </div>
+    <div style="background:var(--c-coral-50);border-radius:var(--border-radius-md);padding:10px;text-align:center;">
+      <div style="font-size:11px;font-weight:500;color:var(--c-coral-800);margin-bottom:4px;">F1</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--c-coral-600);">2PR/(P+R)</div>
+    </div>
+    <div style="background:var(--c-blue-50);border-radius:var(--border-radius-md);padding:10px;text-align:center;">
+      <div style="font-size:11px;font-weight:500;color:var(--c-blue-800);margin-bottom:4px;">Precision</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--c-blue-600);">TP/(TP+FP)</div>
+    </div>
+    <div style="background:var(--c-coral-50);border-radius:var(--border-radius-md);padding:10px;text-align:center;">
+      <div style="font-size:11px;font-weight:500;color:var(--c-coral-800);margin-bottom:4px;">Recall</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--c-coral-600);">TP/(TP+FN)</div>
+    </div>
+    <div style="background:var(--c-amber-50);border-radius:var(--border-radius-md);padding:10px;text-align:center;">
+      <div style="font-size:11px;font-weight:500;color:var(--c-amber-800);margin-bottom:4px;">MAPE</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--c-amber-600);">Σ|e/y|/n×100%</div>
+    </div>
+    <div style="background:var(--c-green-50);border-radius:var(--border-radius-md);padding:10px;text-align:center;">
+      <div style="font-size:11px;font-weight:500;color:var(--c-green-800);margin-bottom:4px;">RMSLE</div>
+      <div style="font-family:monospace;font-size:11px;color:var(--c-green-600);">√Σ(log ratio)²</div>
+    </div>
+  </div>
+
+  <button class="btn-sendprompt" onclick="sendPrompt('이 치트시트를 마크다운 문서로 출력해줘')">
+    <i class="ti ti-download" aria-hidden="true"></i> 마크다운 문서로 출력 ↗
+  </button>
+
+  <div class="takeaway"><div class="tk-label">최종 Takeaway</div><p>지표는 암기하는 게 아니라 <strong>흐름으로 이해</strong>하는 것이다. 지표 조합을 보고 → 모델 상태를 추론하고 → 액션을 결정하는 사고 루프가 자동으로 돌아갈 때까지 반복하면 실전 ML 엔지니어가 된다.</p></div>
+</div>
+
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = parseInt(id.replace('s','')) - 1;
+  document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+}
+</script>
